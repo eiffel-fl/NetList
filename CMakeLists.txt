@@ -11,6 +11,7 @@
 
  find_package(LibXml2 REQUIRED)
  find_package(Qt4     REQUIRED)
+ find_package(Threads REQUIRED)
  include(${QT_USE_FILE})
 
     include_directories( ${SCHEMATIC_SOURCE_DIR}
@@ -59,6 +60,6 @@
            qt4_wrap_cpp( mocCpps      ${mocIncludes} )
 
          add_executable( tme810       ${cpps} ${mocCpps} )
-  target_link_libraries( tme810       ${QT_LIBRARIES} ${LIBXML2_LIBRARIES} )
+  target_link_libraries( tme810       ${QT_LIBRARIES} ${LIBXML2_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
                 install( TARGETS      tme810                      DESTINATION bin )
                 install( FILES        ${includes} ${mocIncludes}  DESTINATION include )

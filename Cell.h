@@ -1,4 +1,5 @@
 // -*- explicit-buffer-name: "Cell.h<M1-MOBJ/8-10>" -*-
+#define XOPEN_SOURCE 700
 
 #ifndef NETLIST_CELL_H
 #define NETLIST_CELL_H
@@ -9,6 +10,8 @@
 #include "Indentation.h"
 #include "Symbol.h"       // TME7
 
+#include <pthread.h>
+
 namespace Netlist {
   class Instance;
   class Net;
@@ -17,6 +20,7 @@ namespace Netlist {
 
   class Cell {
     public:
+			static pthread_mutex_t mutex;
       static       std::vector<Cell*>&     getAllCells       ();
       static       Cell*                   find              ( const std::string& );
       static       Cell*                   load              ( const std::string& );

@@ -1,5 +1,4 @@
 // -*- explicit-buffer-name: "Cell.cpp<M1-MOBJ/8-10>" -*-
-
 #include  <cstdlib>
 #include  <fstream>
 #include  "XmlUtil.h"
@@ -14,6 +13,7 @@ namespace Netlist {
 
   using namespace std;
 
+	pthread_mutex_t Cell::mutex = PTHREAD_MUTEX_INITIALIZER;
 
   vector<Cell*>  Cell::cells_;
 
@@ -79,7 +79,9 @@ namespace Netlist {
            << "        Aborting..." << endl;
       exit( 1 );
     }
+		pthread_mutex_lock(&Cell::mutex);
     cells_.push_back( this );
+		pthread_mutex_unlock(&Cell::mutex);
   }
 
 

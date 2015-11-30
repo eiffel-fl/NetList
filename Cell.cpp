@@ -79,7 +79,8 @@ namespace Netlist {
            << "        Aborting..." << endl;
       exit( 1 );
     }
-		pthread_mutex_lock(&Cell::mutex);
+
+		pthread_mutex_lock(&Cell::mutex); //il faut verrouiller car cells_ est global
     cells_.push_back( this );
 		pthread_mutex_unlock(&Cell::mutex);
   }
@@ -355,6 +356,22 @@ namespace Netlist {
 
     return cell;
   }
+
+  void* Cell::threadLoad(void* ptr){
+		string* str = reinterpret_cast<string*>(ptr);
+
+		Cell* cell = Cell::load(*str);
+
+		return (void*) cell;
+	}
+
+	void* Cell::threadSave(void* ptr){
+		Cell* cell = reinterpret_cast<Cell*>(ptr);
+
+		cell->save();
+
+		return NULL;
+	}
 
 
 }  // Netlist namespace.

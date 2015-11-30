@@ -1,6 +1,5 @@
 // -*- explicit-buffer-name: "Cell.h<M1-MOBJ/8-10>" -*-
 #define XOPEN_SOURCE 700
-
 #ifndef NETLIST_CELL_H
 #define NETLIST_CELL_H
 
@@ -9,8 +8,8 @@
 #include <vector>
 #include "Indentation.h"
 #include "Symbol.h"       // TME7
-
 #include <pthread.h>
+
 
 namespace Netlist {
   class Instance;
@@ -21,9 +20,14 @@ namespace Netlist {
   class Cell {
     public:
 			static pthread_mutex_t mutex;
+
       static       std::vector<Cell*>&     getAllCells       ();
       static       Cell*                   find              ( const std::string& );
       static       Cell*                   load              ( const std::string& );
+
+			//fonction des threads static, c'est un peu sale mais les threads POSIX ne sont pas très flexibles
+			static void* threadLoad(void*); //thread effectuant le chargement d'une Cell et renvoyant une Cell*
+			static void* threadSave(void*); //thread qui effectue la sauvegarde d'une Cell
     public:
                                            Cell              ( const std::string& );
                                           ~Cell              ();

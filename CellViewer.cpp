@@ -59,6 +59,8 @@ namespace Netlist {
 	}
 
 	void CellViewer::saveCell(){
+		pthread_t tid;
+
 		Cell* cell = getCell();
 
 		if(cell == NULL)
@@ -71,7 +73,13 @@ namespace Netlist {
 		if(saveCellDialog_->run(cellName)){
 			cell->setName(cellName.toStdString());
 			cerr << "Save Cell Dialog name : " << cell->getName().c_str() << " 2" << endl;
-			cell->save();
+
+			if(pthread_create(&tid, NULL, Cell::threadSave, (void*) cell) == -1){
+				perror("pthread_create ");
+				exit(EXIT_FAILURE);
+			}
+
+			//on n'attend pas la thread, elle se finira quand elle se finira, on gagne du temps
 		}
 	}
 

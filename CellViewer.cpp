@@ -88,6 +88,20 @@ namespace Netlist {
 	}
 
 	void CellViewer::openCell(){
-		setCell(Cell::load(OpenCellDialog::run()));
+		Cell* cell;
+		pthread_t tid;
+		string cellName = OpenCellDialog::run();
+
+		if(pthread_create(&tid, NULL, Cell::threadLoad, (void*) &cellName) == -1){
+			perror("pthread_create ");
+			exit(EXIT_FAILURE);
+		}
+
+		if(pthread_join(tid, (void**) &cell) == -1){
+			perror("pthread_join ");
+			exit(EXIT_FAILURE);
+		}
+
+		setCell(cell);
 	}
 }  // Netlist namespace.

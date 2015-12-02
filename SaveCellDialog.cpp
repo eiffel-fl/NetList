@@ -13,6 +13,7 @@
 namespace Netlist {
 
 	using namespace std;
+	
 	SaveCellDialog::SaveCellDialog(QWidget* parent) :
 		QDialog(parent),
 		lineEdit_(NULL){

@@ -1,7 +1,7 @@
 // -*- explicit-buffer-name: "CellWidget.h<M1-MOBJ/8-10>" -*-
 
-#ifndef NETLIST_INSTANCES_MODEL_H
-#define NETLIST_INSTANCES_MODEL_H
+#ifndef NETLIST_CELLS_MODEL_H
+#define NETLIST_CELLS_MODEL_H
 
 #include <QObject>
 #include <QAbstractTableModel>
@@ -12,12 +12,12 @@ namespace Netlist {
 
 	class Cell;
 
-	class InstancesModel : public QAbstractTableModel{
+	class CellsModel : public QAbstractTableModel{
 		Q_OBJECT;
 	public:
-		InstancesModel(QObject* parent=NULL);
+		CellsModel(QObject* parent=NULL);
 
-		void setCell(Cell* cell);
+		void setCells(Cell* cell);
 		Cell* getModel(int);
 
 		int rowCount(const QModelIndex& parent = QModelIndex()) const;

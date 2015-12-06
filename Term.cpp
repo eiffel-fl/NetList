@@ -149,8 +149,6 @@ namespace Netlist {
 		direction = toDirection(xmlCharToString(directionXml));
 		Term* t = new Term(cell, name, direction);
 
-		cerr << "Term : " << name << " " << direction << endl;
-
 		t->setPosition(x, y);
 
 		return t;

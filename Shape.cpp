@@ -80,8 +80,6 @@ namespace Netlist {
 		if(not xmlGetIntAttribute(reader, "y2", y2))
 			return NULL;
 
-		cerr << "Line : " << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
-
 		return (Shape*) new LineShape(owner, x1, x2, y1, y2);
 	}
 
@@ -118,8 +116,6 @@ namespace Netlist {
 
 		if(not xmlGetIntAttribute(reader, "y2", y2))
 			return NULL;
-
-		cerr << "Box : " << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
 
 		return (Shape*) new BoxShape(owner, x1, y1, x2, y2);
 	}
@@ -165,8 +161,6 @@ namespace Netlist {
 
 		name = xmlCharToString(nameXml);
 		align = toNameAlign(xmlCharToString(alignXml));
-
-		cerr << "Term : " << name << " " << align << " " << x1 << " " << y1 << endl;
 
 		return (Shape*) new TermShape(owner, owner->getCell()->getTerm(name), x1, y1, align);
 	}
@@ -226,8 +220,6 @@ namespace Netlist {
 		if(not xmlGetIntAttribute(reader, "y2", y2))
 			return NULL;
 
-		cerr << "Ellipse : " << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
-
 		return (Shape*) new EllipseShape(owner, x1, y1, x2, y2);
 	}
 
@@ -266,8 +258,6 @@ namespace Netlist {
 
 		if(not xmlGetIntAttribute(reader, "span", span))
 			return NULL;
-
-		cerr << "Arc : " << x1 << " " << x2 << " " << y1 << " " << y2 << " " << start << " " << span << endl;
 
 		return (Shape*) new ArcShape(symbol, x1, y1, x2, y2, start, span);
 	}

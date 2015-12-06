@@ -38,8 +38,6 @@ int main (int argc, char* argv[]){
 		}
 	}
 
-	puts("NIVEAU 0 FINI");
-
 	for(k = 0; k < 2; k++){ //niveau 1 : XOR et AND
 		for(j = 0; j < 2; j++){ //niveau 2 : OR et halfadder
 			if(pthread_create(&tid[j], NULL, Cell::threadLoad, (void*) &files[i]) == -1){
@@ -57,10 +55,7 @@ int main (int argc, char* argv[]){
 			}
 		}
 
-		puts("NIVEAU 1 FINI");
 	}
-
-	puts("NIVEAU 2 FINI");
 
 	if(pthread_create(&tid[0], NULL, Cell::threadLoad, (void*) &files[i]) == -1){ //niveau 3 : fulladder
 		perror("pthread_create ");

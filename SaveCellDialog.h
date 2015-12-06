@@ -10,7 +10,6 @@ namespace Netlist {
 	class Cell;
 	class NodeTerm;
 
-
 	class SaveCellDialog : public QDialog {
 		Q_OBJECT;
 	public :

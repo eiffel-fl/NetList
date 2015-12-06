@@ -59,7 +59,14 @@ namespace Netlist {
 	}
 
 	Symbol* Symbol::fromXml(Cell* owner, xmlTextReaderPtr reader){
+		const xmlChar* boxTag = xmlTextReaderConstString( reader, (const xmlChar*)"box" );
+		const xmlChar* ellipseTag = xmlTextReaderConstString( reader, (const xmlChar*)"ellipse" );
+		const xmlChar* arcTag = xmlTextReaderConstString( reader, (const xmlChar*)"arc" );
+		const xmlChar* lineTag = xmlTextReaderConstString( reader, (const xmlChar*)"line" );
+		const xmlChar* termTag = xmlTextReaderConstString( reader, (const xmlChar*)"term" );
 		const xmlChar* symbolTag = xmlTextReaderConstString(reader, (const xmlChar*)"symbol");
+
+		const xmlChar* curTag;
 
 		Symbol* symbol = new Symbol(owner);
 
@@ -67,7 +74,10 @@ namespace Netlist {
 			if(xmlTextReaderRead(reader) != 1)
 				return NULL;
 
-			Shape::fromXml(owner->getSymbol(), reader);
+			curTag = xmlTextReaderConstLocalName(reader);
+
+			if(curTag == boxTag or curTag == ellipseTag or curTag == arcTag or curTag == lineTag or curTag == termTag)
+				Shape::fromXml(owner->getSymbol(), reader);
 		} while (xmlTextReaderConstLocalName(reader) != symbolTag and xmlTextReaderNodeType(reader) != XML_READER_TYPE_END_ELEMENT);
 
 		return symbol;

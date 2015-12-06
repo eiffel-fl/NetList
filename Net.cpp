@@ -94,7 +94,6 @@ namespace Netlist {
 	}
 
 	void Net::add(Node* node){
-		cerr << " add node " << node->getId() << " to " << getName() << endl;
 		if(node->getId() == Node::noid) //si il n'y a pas d'id on en récupère un
 			node->setId(getFreeNodeId());
 
@@ -139,8 +138,6 @@ namespace Netlist {
 		type = Term::toType(typeStr);
 
 		Net* net = new Net(cell, name, type);
-
-		cerr << "Net : " << name << endl;
 
 		do{
 			if(xmlTextReaderRead(xmlPtr) != 1)

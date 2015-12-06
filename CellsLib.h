@@ -4,12 +4,8 @@
 #define NETLIST_CELLS_LIB_H
 
 #include <QWidget>
-#include <QPixmap>
-#include <QPainter>
-#include <QRect>
-#include <QPoint>
-class QPainter;
-#include "Box.h"
+#include <QPushButton>
+#include <QTableView>
 
 
 namespace Netlist {

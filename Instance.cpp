@@ -65,7 +65,6 @@ namespace Netlist {
 	}
 
 	void Instance::toXml(std::ostream& stream){
-		cerr << "Instance::toXml" << endl;
 		stream << indent << "<instance name=\"" << name_ << "\" mastercell=\"" << masterCell_->getName() << "\" x=\"" << position_.getX() << "\" y=\"" << position_.getY() << "\"/>\n";
 	}
 
@@ -141,8 +140,6 @@ namespace Netlist {
 
 		name = xmlCharToString(nameXml);
 		masterCell = xmlCharToString(masterCellXml);
-
-		cerr << "Instance : " << name << " " << masterCell << " " << x << " " << y << endl;
 
 		Instance* i = new Instance(cell, cell->find(masterCell), name);
 		i->setPosition(x, y);

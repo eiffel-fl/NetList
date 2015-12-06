@@ -4,18 +4,14 @@
 #define NETLIST_INSTANCES_WIDGET_H
 
 #include <QWidget>
-#include <QPixmap>
-#include <QPainter>
-#include <QRect>
-#include <QPoint>
-class QPainter;
-#include "Box.h"
-
+#include <QTableView>
+#include <QPushButton>
+#include "InstancesModel.h"
 
 namespace Netlist {
 
+	class Cell;
 	class CellViewer;
-	class InstancesModel;
 
 	class InstancesWidget : public QWidget {
 		Q_OBJECT;
@@ -24,7 +20,7 @@ namespace Netlist {
 		void  setCellViewer   ( CellViewer* );
 		void  goTo            ( int );
 		int   getSelectedRow  () const;
-		inline  void  setCell         ( Cell* );
+		inline void setCell(Cell* cell){ baseModel_->setCell(cell); }
 	public slots:
 		void  load            ();
 	private:

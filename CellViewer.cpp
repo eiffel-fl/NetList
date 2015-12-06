@@ -9,6 +9,8 @@
 #include "CellWidget.h"
 #include "SaveCellDialog.h"
 #include "OpenCellDialog.h"
+#include "InstancesWidget.h"
+#include "CellsLib.h"
 
 namespace Netlist {
 
@@ -22,6 +24,8 @@ namespace Netlist {
 	saveCellDialog_(NULL){
 		cellWidget_ = new CellWidget();
 		saveCellDialog_ = new SaveCellDialog();
+		instancesWidget_ = new InstancesWidget();
+		cellsLib_= new CellsLib();
 
 		setCentralWidget(cellWidget_);
 
@@ -42,6 +46,22 @@ namespace Netlist {
 
 		fileMenu->addAction(action);
 		connect(action, SIGNAL(triggered()), this, SLOT(openCell()));
+
+		action = new QAction("&Instances", this);
+		action->setStatusTip("Show the Instances");
+		action->setShortcut(QKeySequence("Ctrl+I"));
+		action->setVisible(true);
+
+		fileMenu->addAction(action);
+		connect(action, SIGNAL(triggered()), this, SLOT(showInstancesWidget()));
+
+		action = new QAction("&Cells", this);
+		action->setStatusTip("Show the Cells");
+		action->setShortcut(QKeySequence("Ctrl+C"));
+		action->setVisible(true);
+
+		fileMenu->addAction(action);
+		connect(action, SIGNAL(triggered()), this, SLOT(showCellsLib()));
 
 		action = new QAction("&Quit", this);
 		action->setStatusTip("Close the application");
@@ -92,6 +112,12 @@ namespace Netlist {
 		pthread_t tid;
 		string cellName = OpenCellDialog::run();
 
+		if((cell = cellWidget_->getCell()->find(cellName))){ //si on a déjà chargé la cell
+			setCell(cell); //on change juste
+			return;
+		}
+
+		//il faut charger la cell
 		if(pthread_create(&tid, NULL, Cell::threadLoad, (void*) &cellName) == -1){
 			perror("pthread_create ");
 			exit(EXIT_FAILURE);
@@ -103,5 +129,16 @@ namespace Netlist {
 		}
 
 		setCell(cell);
+	}
+
+	void CellViewer::showInstancesWidget(){
+		instancesWidget_->setCellViewer(this);
+		instancesWidget_->setCell(getCell());
+		instancesWidget_->setVisible(true);
+	}
+
+	void CellViewer::showCellsLib(){
+		cellsLib_->setCellViewer(this);
+		cellsLib_->setVisible(true);
 	}
 }  // Netlist namespace.

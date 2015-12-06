@@ -19,7 +19,7 @@ namespace Netlist {
 		CellsLib       ( QWidget* parent=NULL );
 		void        setCellViewer  ( CellViewer* );
 		int         getSelectedRow () const;
-		inline CellsModel* getBaseModel   ();
+		inline CellsModel* getBaseModel() { return baseModel_; }
 	public slots:
 		void        load           ();
 	private:

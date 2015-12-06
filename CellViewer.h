@@ -28,6 +28,8 @@ namespace Netlist {
 		void      openCell            ();
 		void      showCellsLib        ();  // TME9+.
 		void      showInstancesWidget ();  // TME9+.
+	signals :
+		void cellLoaded();
 	private:
 		CellWidget*      cellWidget_;
 		CellsLib*        cellsLib_;         // TME9+.

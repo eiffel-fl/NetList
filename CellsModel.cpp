@@ -8,25 +8,27 @@ namespace Netlist {
 
 	CellsModel::CellsModel(QObject* parent) :
 	QAbstractTableModel(parent),
-	cell_(NULL){
+	cells_(Cell::getAllCells()){ /*on initialise le vector avec le vector des cells*/
 	}
 
-	void CellsModel::setCells(Cell* cell){
+	void CellsModel::setCells(std::vector<Cell*> cells){
 		emit layoutAboutToBeChanged();
-		cell_ = cell;
-		cerr << "anchois" << endl;
+		cells_ = cells;
 		emit layoutChanged();
 	}
 
 	Cell* CellsModel::getModel(int row){
+		if(not cells_.size())
+			return NULL;
+
 		if(row >= (int) Cell::getAllCells().size() or row < 0)
 			return NULL;
 
-		return Cell::getAllCells()[row];
+		return cells_[row];
 	}
 
 	int CellsModel::rowCount(const QModelIndex& parent) const{
-		return Cell::getAllCells().size();
+		return cells_.size();
 	}
 
 	int CellsModel::columnCount(const QModelIndex& parent) const{
@@ -34,13 +36,16 @@ namespace Netlist {
 	}
 
 	QVariant CellsModel::data(const QModelIndex& index, int role) const{
+		if(not cells_.size())
+			return QVariant();
+
 		if(not index.isValid())
 			return QVariant();
 
 		if(role == Qt::DisplayRole){
 			int row = index.row();
 			if(index.column() == 0)
-				return Cell::getAllCells()[row]->getName().c_str();
+				return cells_[row]->getName().c_str();
 		}
 
 		return QVariant();
@@ -59,4 +64,7 @@ namespace Netlist {
 		return QVariant();
 	}
 
+	void CellsModel::updateDatas(){ /*quand on reçoit le signal, on "rafraichit" */
+		setCells(Cell::getAllCells());
+	}
 }  // Netlist namespace.

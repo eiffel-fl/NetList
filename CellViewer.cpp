@@ -11,6 +11,7 @@
 #include "OpenCellDialog.h"
 #include "InstancesWidget.h"
 #include "CellsLib.h"
+#include "CellsModel.h"
 
 namespace Netlist {
 
@@ -70,6 +71,8 @@ namespace Netlist {
 
 		fileMenu->addAction(action);
 		connect(action, SIGNAL(triggered()), this, SLOT(close()));
+
+		connect(this, SIGNAL(cellLoaded()), cellsLib_->getBaseModel(), SLOT(updateDatas()));
 	}
 
 	CellViewer::~CellViewer(){}
@@ -128,6 +131,8 @@ namespace Netlist {
 			exit(EXIT_FAILURE);
 		}
 
+		emit cellLoaded();
+
 		setCell(cell);
 	}
 
@@ -141,4 +146,5 @@ namespace Netlist {
 		cellsLib_->setCellViewer(this);
 		cellsLib_->setVisible(true);
 	}
+
 }  // Netlist namespace.

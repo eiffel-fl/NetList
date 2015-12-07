@@ -31,7 +31,7 @@ namespace Netlist {
 		void updateDatas();
 
 	private :
-		std::vector<Cell*> cells_;
+		std::vector<Cell*> cells_; //le vector des (dura)cells déjà chargées
 	};
 }  // Netlist namespace.
 

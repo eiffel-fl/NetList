@@ -32,7 +32,7 @@ namespace Netlist {
 	}
 
 	int CellsModel::columnCount(const QModelIndex& parent) const{
-		return 1;
+		return 1; //une seule colonne
 	}
 
 	QVariant CellsModel::data(const QModelIndex& index, int role) const{

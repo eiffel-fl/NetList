@@ -11,9 +11,9 @@ namespace Netlist {
 	cell_(NULL){
 	}
 
-	void InstancesModel::setCell(Cell* cell){
+	void InstancesModel::setCell(Cell* duracell){
 		emit layoutAboutToBeChanged();
-		cell_ = cell;
+		cell_ = duracell;
 		emit layoutChanged();
 	}
 

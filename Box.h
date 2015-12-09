@@ -69,7 +69,9 @@ namespace Netlist {
   inline int                Box::getY1     () const { return y1_; }
   inline int                Box::getX2     () const { return x2_; }
   inline int                Box::getY2     () const { return y2_; }
-  inline int                Box::getWidth  () const { return x2_ - x1_; }
+  inline int                Box::getWidth  () const {
+		std::cerr << "Box x2 : " << x2_ << " Box x1 : " << x1_ << std::endl;
+		return x2_ - x1_; }
   inline int                Box::getHeight () const { return y2_ - y1_; }
   inline Box&               Box::setX1     ( int x1 ) { x1_ = x1; return *this; }
   inline Box&               Box::setY1     ( int y1 ) { y1_ = y1; return *this; }

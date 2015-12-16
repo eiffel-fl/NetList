@@ -103,9 +103,32 @@ namespace Netlist {
 		if(not cell_)
 			return;
 
+		vector<Net*> nets = cell_->getNets();
+
+		for(vector<Net*>::iterator iN = nets.begin(); iN != nets.end(); ++iN){ //affichage des Lines et Nodes
+			vector<Line*> lines = (*iN)->getLines();
+			vector<Node*> nodes = (*iN)->getNodes();
+
+			painter.setPen(QPen(Qt::cyan, 1));
+
+			for(vector<Line*>::iterator iL = lines.begin() ; iL != lines.end() ; ++iL){
+				painter.drawLine(pointToScreenPoint((*iL)->getSourcePosition()), pointToScreenPoint((*iL)->getTargetPosition()));
+			}
+
+			for(vector<Node*>::iterator iNo = nodes.begin() ; iNo != nodes.end() ; ++iNo){
+				if(*iNo != NULL){
+					if((*iNo)->getDegree() > 2){ //connecté à plus de 2 Lines
+						painter.setBrush(QBrush(Qt::cyan));
+						painter.drawEllipse(pointToScreenPoint((*iNo)->getPosition()), TERM_SIZE, TERM_SIZE);
+						painter.setBrush(Qt::NoBrush);
+					}
+				}
+			}
+		}
+
 		const vector<Instance*> instances = cell_->getInstances();
 
-		for(size_t i = 0; i < instances.size(); i++){
+		for(size_t i = 0; i < instances.size(); i++){ //affichage des symbols
 			Point intPos = instances[i]->getPosition();
 
 			const Symbol* symbol = instances[i]->getMasterCell()->getSymbol();
@@ -133,10 +156,6 @@ namespace Netlist {
 
 						QRect rect = boxToScreenRect(box.translate(intPos));
 
-						cerr << "Ellipse :" << endl;
-						cerr << "\t" << box << endl;
-						cerr << "\t" << rect << endl;
-
 						painter.setPen(QPen(Qt::darkGreen, 3));
 						painter.drawEllipse(rect);
 					} else {
@@ -155,7 +174,6 @@ namespace Netlist {
 							if(lineShape){
 								painter.setPen(QPen(Qt::darkGreen, 3));
 								painter.drawLine(pointToScreenPoint(Point(lineShape->getX1(), lineShape->getY1()).translate(intPos)), pointToScreenPoint(Point(lineShape->getX2(), lineShape->getY2()).translate(intPos)));
-							cerr << "Line :" << endl;
 							} else {
 								TermShape* termShape= dynamic_cast<TermShape*>(shapes[j]);
 
@@ -200,69 +218,52 @@ namespace Netlist {
 					}
 				}
 			}
+		}
+		vector<Term*> terms = cell_->getTerms();
 
-			vector<Term*> terms = instances[i]->getTerms();
+		for(vector<Term*>::iterator iT = terms.begin() ; iT != terms.end() ; ++iT){ //affichage des terminaux de la cell
+			QVector<QPoint> points(5);
 
-			for(vector<Term*>::iterator iT = terms.begin() ; iT != terms.end() ; ++iT){
-				vector<Line*> lines = (*iT)->getNet()->getLines();
+			points[0] = pointToScreenPoint(Point((*iT)->getPosition()));
 
-				for(vector<Line*>::iterator iL = lines.begin() ; iL != lines.end() ; ++iL){
-					painter.setPen(QPen(Qt::cyan, 1));
-					painter.drawLine(pointToScreenPoint((*iL)->getSourcePosition()), pointToScreenPoint((*iL)->getTargetPosition()));
-				}
+			points[1] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY()));
+
+			QRect nameRect = QRect(pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - TERM_SIZE)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
+
+			painter.setPen(QPen(Qt::red, 1));
+			painter.drawText(nameRect, Qt::AlignLeft, (*iT)->getName().c_str());
+
+			switch((*iT)->getDirection()){
+				case Term::In : //une maison penchée vers la droite
+					points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + 1.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
+
+					points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					break;
+				case Term::Out : //une maison penchée vers la gauche
+					points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX() - 0.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
+
+					break;
+				default : //un rectangle simple
+					points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+					points[4] = points[0];
 			}
+			QPolygon polygon = QPolygon(points);
 
-			terms = cell_->getTerms();
+			painter.setBrush(QBrush(Qt::red)); //pour remplir le polygon
 
-			for(vector<Term*>::iterator iT = terms.begin() ; iT != terms.end() ; ++iT){
-				QVector<QPoint> points(5);
+			painter.drawPolygon(polygon);
 
-				points[0] = pointToScreenPoint(Point((*iT)->getPosition()));
-
-				points[1] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY()));
-
-				QRect nameRect = QRect(pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - TERM_SIZE)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
-
-				painter.setPen(QPen(Qt::red, 1));
-				painter.drawText(nameRect, Qt::AlignLeft, (*iT)->getName().c_str());
-
-				switch((*iT)->getDirection()){
-					case Term::In : //une maison penchée vers la droite
-						cerr << "In" << endl;
-						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + 1.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
-
-						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						break;
-					case Term::Out : //une maison penchée vers la gauche
-						cerr << "Out" << endl;
-						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX() - 0.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
-
-						break;
-					default : //un rectangle simple
-						cerr << "Default" << endl;
-						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
-
-						points[4] = points[0];
-				}
-
-				QPainterPath path; //utilisé pour remplir le polygon
-
-				QPolygon polygon = QPolygon(points);
-
-				path.addPolygon(polygon);
-
-				painter.drawPolygon(polygon);
-				painter.fillPath(path, Qt::red); //petit bricolage
-			}
+			painter.setBrush(Qt::NoBrush);
 		}
 	}
 

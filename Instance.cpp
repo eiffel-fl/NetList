@@ -100,7 +100,7 @@ namespace Netlist {
 		position_ = point;
 		vector<Term*>::iterator iT = terms_.begin();
 		for(; iT != terms_.end(); ++iT) //translation
-			(*iT)->setPosition((*iT)->getPosition().getX() + point.getX(), (*iT)->getPosition().getY() + point.getY());
+			(*iT)->setPosition((*iT)->getPosition().translate(point));
 	}
 
 	void Instance::setPosition(int x, int y){

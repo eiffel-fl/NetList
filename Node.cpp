@@ -159,6 +159,4 @@ namespace Netlist {
 
     return false;
   }
-
-
 }  // Netlist namespace.

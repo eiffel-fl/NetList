@@ -16,6 +16,7 @@
 #include  "Node.h"
 #include  "Net.h"
 
+#define CELL_TERM_SIZE 10
 #define TERM_SIZE 5
 #define TERM_NAME_WIDTH 100
 #define TERM_NAME_HEIGHT 20
@@ -66,12 +67,12 @@ namespace Netlist {
   }
 
 
-  QSize  CellWidget::minimumSizeHint () const
-  { return QSize(500,500); }
+  QSize CellWidget::minimumSizeHint () const{
+		return QSize(500,500);
+	}
 
 
   void CellWidget::resizeEvent(QResizeEvent* event){
-		cerr << "*********resizeEvent" << endl;
 		const QSize& size = event->size();
 		viewport_.setX2(viewport_.getX1() + size.width());
 		viewport_.setY1(viewport_.getY2() - size.height());
@@ -79,36 +80,32 @@ namespace Netlist {
 	}
 
 	void CellWidget::goRight(){
-		viewport_.translate(Point(20, 0));
-		repaint();
-	}
-
-	void CellWidget::goLeft(){
 		viewport_.translate(Point(-20, 0));
 		repaint();
 	}
 
-	void CellWidget::goUp(){
-		viewport_.translate(Point(0, 20));
+	void CellWidget::goLeft(){
+		viewport_.translate(Point(20, 0));
 		repaint();
 	}
 
-	void CellWidget::goDown(){
+	void CellWidget::goUp(){
 		viewport_.translate(Point(0, -20));
 		repaint();
 	}
 
+	void CellWidget::goDown(){
+		viewport_.translate(Point(0, 20));
+		repaint();
+	}
+
 	void CellWidget::query(QPainter& painter){
-		cerr << "Query James" << endl;
-		if(not cell_){
-			cerr << "Cell NULL" << endl;
+		if(not cell_)
 			return;
-		}
 
 		const vector<Instance*> instances = cell_->getInstances();
 
 		for(size_t i = 0; i < instances.size(); i++){
-			cerr << "Peinturage" << endl;
 			Point intPos = instances[i]->getPosition();
 
 			const Symbol* symbol = instances[i]->getMasterCell()->getSymbol();
@@ -119,118 +116,152 @@ namespace Netlist {
 			const vector<Shape*> shapes = symbol->getShapes();
 
 			for(size_t j = 0; j < shapes.size(); j++){
-				BoxShape* boxShape = dynamic_cast<BoxShape*>(shapes[j]);
+				ArcShape* arcShape = dynamic_cast<ArcShape*>(shapes[j]);
 
-				if(boxShape){
-					Box box = boxShape->getBox();
+				if(arcShape){
+					Box box = arcShape->getBox();
 
 					QRect rect = boxToScreenRect(box.translate(intPos));
 
-					painter.drawRect(rect);
+					painter.setPen(QPen(Qt::darkGreen, 3));
+					painter.drawArc(rect, arcShape->getStart() * 16, arcShape->getSpan() * 16);
 				} else {
-					LineShape* lineShape = dynamic_cast<LineShape*>(shapes[j]);
+					EllipseShape* ellipseShape = dynamic_cast<EllipseShape*>(shapes[j]);
 
-					if(lineShape){
-						painter.drawLine(pointToScreenPoint(Point(lineShape->getX1(), lineShape->getY1())), pointToScreenPoint(Point(lineShape->getX2(), lineShape->getY2())));
+					if(ellipseShape){
+						Box box = ellipseShape->getBox();
+
+						QRect rect = boxToScreenRect(box.translate(intPos));
+
+						cerr << "Ellipse :" << endl;
+						cerr << "\t" << box << endl;
+						cerr << "\t" << rect << endl;
+
+						painter.setPen(QPen(Qt::darkGreen, 3));
+						painter.drawEllipse(rect);
 					} else {
-						ArcShape* arcShape = dynamic_cast<ArcShape*>(shapes[j]);
+						BoxShape* boxShape = dynamic_cast<BoxShape*>(shapes[j]);
 
-						if(arcShape){
-							Box box = arcShape->getBox();
+						if(boxShape){
+							Box box = boxShape->getBox();
 
 							QRect rect = boxToScreenRect(box.translate(intPos));
 
-							painter.drawArc(rect, arcShape->getStart(), arcShape->getSpan());
+							painter.setPen(QPen(Qt::darkGreen, 3));
+							painter.drawRect(rect);
 						} else {
-							EllipseShape* ellipseShape = dynamic_cast<EllipseShape*>(shapes[j]);
+							LineShape* lineShape = dynamic_cast<LineShape*>(shapes[j]);
 
-							if(ellipseShape){
-								Box box = ellipseShape->getBox();
-
-								QRect rect = boxToScreenRect(box.translate(intPos));
-
-								painter.drawEllipse(rect);
+							if(lineShape){
+								painter.setPen(QPen(Qt::darkGreen, 3));
+								painter.drawLine(pointToScreenPoint(Point(lineShape->getX1(), lineShape->getY1()).translate(intPos)), pointToScreenPoint(Point(lineShape->getX2(), lineShape->getY2()).translate(intPos)));
+							cerr << "Line :" << endl;
 							} else {
 								TermShape* termShape= dynamic_cast<TermShape*>(shapes[j]);
 
 								if(termShape){
-									if(termShape->getTerm()->isInternal()){ //un simple rectangle
-										QRect rect = QRect(termShape->getX1(), termShape->getY1(), TERM_SIZE, TERM_SIZE);
+									QRect rect = QRect(pointToScreenPoint(Point(termShape->getX1(), termShape->getY1()).translate(intPos)), QSize(TERM_SIZE, TERM_SIZE));
 
-										painter.drawRect(rect);
-									}
+									painter.setPen(QPen(Qt::red, 1));
+									painter.drawRect(rect);
+									painter.fillRect(rect, Qt::red);
 
-									if(termShape->getTerm()->isExternal()){ //un polygone
-										QVector<QPoint> points(5);
+									QRect nameRect;
 
-										points[0] = pointToScreenPoint(Point(termShape->getX1(), termShape->getY1()));
+									switch(termShape->getAlign()){
+										case TermShape::TopLeft :
+											nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() - TERM_NAME_WIDTH, termShape->getY1() + TERM_NAME_HEIGHT).translate(intPos)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
 
-										points[1] = pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1()));
+											painter.drawText(nameRect, Qt::AlignRight, termShape->getTerm()->getName().c_str());
 
-										switch(termShape->getTerm()->getDirection()){
-											case Term::In : //une maison penchée vers la droite
-												points[2] = pointToScreenPoint(Point(termShape->getX1() + 1.5 * TERM_SIZE, termShape->getY1() - 0.5 * TERM_SIZE));
+											break;
+										case TermShape::TopRight :
+											nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() + TERM_NAME_HEIGHT).translate(intPos)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
 
-												points[3] = pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() - TERM_SIZE));
+											painter.drawText(nameRect, Qt::AlignLeft, termShape->getTerm()->getName().c_str());
 
-												points[4] = pointToScreenPoint(Point(termShape->getX1(), termShape->getY1() - TERM_SIZE));
+											break;
+										case TermShape::BottomLeft :
+											nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() - TERM_NAME_WIDTH, termShape->getY1() - 2 * TERM_NAME_HEIGHT).translate(intPos)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
 
-												break;
-											case Term::Out : //une maison penchée vers la gauche
-												points[2] = pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() - TERM_SIZE));
+											painter.drawText(nameRect, Qt::AlignRight, termShape->getTerm()->getName().c_str());
 
-												points[3] = pointToScreenPoint(Point(termShape->getX1(), termShape->getY1() - TERM_SIZE));
+											break;
+										case TermShape::BottomRight :
+											nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() - 2 * TERM_NAME_HEIGHT).translate(intPos)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
 
-												points[4] = pointToScreenPoint(Point(termShape->getX1() - 0.5 * TERM_SIZE, termShape->getY1() - 0.5 * TERM_SIZE));
+											painter.drawText(nameRect, Qt::AlignLeft, termShape->getTerm()->getName().c_str());
 
-												break;
-											default : //un rectangle simple
-												points[2] = pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() - TERM_SIZE));
-
-												points[3] = pointToScreenPoint(Point(termShape->getX1(), termShape->getY1() - TERM_SIZE));
-
-												points[4] = points[0];
-										}
-										QPolygon polygon = QPolygon(points);
-
-										painter.drawPolygon(polygon);
-
-										QRect nameRect;
-
-										switch(termShape->getAlign()){
-											case TermShape::TopLeft :
-												nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() - TERM_NAME_WIDTH, termShape->getY1() + TERM_NAME_HEIGHT)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
-
-												painter.drawText(nameRect, Qt::AlignRight, termShape->getTerm()->getName().c_str());
-
-												break;
-											case TermShape::TopRight :
-												nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() + TERM_NAME_HEIGHT)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
-
-												painter.drawText(nameRect, Qt::AlignLeft, termShape->getTerm()->getName().c_str());
-
-												break;
-											case TermShape::BottomLeft :
-												nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() - TERM_NAME_WIDTH, termShape->getY1() - 2 * TERM_NAME_HEIGHT)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
-
-												painter.drawText(nameRect, Qt::AlignRight, termShape->getTerm()->getName().c_str());
-
-												break;
-											case TermShape::BottomRight :
-												nameRect = QRect(pointToScreenPoint(Point(termShape->getX1() + TERM_SIZE, termShape->getY1() - 2 * TERM_NAME_HEIGHT)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
-
-												painter.drawText(nameRect, Qt::AlignLeft, termShape->getTerm()->getName().c_str());
-
-												break;
-										}
-
-										painter.drawRect(nameRect);
+											break;
 									}
 								}
 							}
 						}
 					}
 				}
+			}
+
+			vector<Term*> terms = instances[i]->getTerms();
+
+			for(vector<Term*>::iterator iT = terms.begin() ; iT != terms.end() ; ++iT){
+				vector<Line*> lines = (*iT)->getNet()->getLines();
+
+				for(vector<Line*>::iterator iL = lines.begin() ; iL != lines.end() ; ++iL){
+					painter.setPen(QPen(Qt::cyan, 1));
+					painter.drawLine(pointToScreenPoint((*iL)->getSourcePosition()), pointToScreenPoint((*iL)->getTargetPosition()));
+				}
+			}
+
+			terms = cell_->getTerms();
+
+			for(vector<Term*>::iterator iT = terms.begin() ; iT != terms.end() ; ++iT){
+				QVector<QPoint> points(5);
+
+				points[0] = pointToScreenPoint(Point((*iT)->getPosition()));
+
+				points[1] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY()));
+
+				QRect nameRect = QRect(pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - TERM_SIZE)), QSize(TERM_NAME_WIDTH, TERM_NAME_HEIGHT));
+
+				painter.setPen(QPen(Qt::red, 1));
+				painter.drawText(nameRect, Qt::AlignLeft, (*iT)->getName().c_str());
+
+				switch((*iT)->getDirection()){
+					case Term::In : //une maison penchée vers la droite
+						cerr << "In" << endl;
+						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + 1.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
+
+						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						break;
+					case Term::Out : //une maison penchée vers la gauche
+						cerr << "Out" << endl;
+						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						points[4] = pointToScreenPoint(Point((*iT)->getPosition().getX() - 0.5 * CELL_TERM_SIZE, (*iT)->getPosition().getY() - 0.5 * CELL_TERM_SIZE));
+
+						break;
+					default : //un rectangle simple
+						cerr << "Default" << endl;
+						points[2] = pointToScreenPoint(Point((*iT)->getPosition().getX() + CELL_TERM_SIZE, (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						points[3] = pointToScreenPoint(Point((*iT)->getPosition().getX(), (*iT)->getPosition().getY() - CELL_TERM_SIZE));
+
+						points[4] = points[0];
+				}
+
+				QPainterPath path; //utilisé pour remplir le polygon
+
+				QPolygon polygon = QPolygon(points);
+
+				path.addPolygon(polygon);
+
+				painter.drawPolygon(polygon);
+				painter.fillPath(path, Qt::red); //petit bricolage
 			}
 		}
 	}
@@ -241,13 +272,13 @@ namespace Netlist {
 
     painter.eraseRect(QRect(QPoint(0,0), size()));
 
-		painter.setPen(QPen(Qt::darkGreen, 10));
+		painter.setPen(QPen(Qt::darkGreen, 1));
 
 		QRect rect = boxToScreenRect(viewport_);
 
-		cerr << "Peinturage du viewport_" << endl;
-		cerr << rect << endl;
     painter.drawRect(rect);
+
+		query(painter);
   }
 
   void CellWidget::keyPressEvent(QKeyEvent* event){

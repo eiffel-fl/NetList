@@ -13,7 +13,7 @@
 namespace Netlist {
 
 	using namespace std;
-	
+
 	SaveCellDialog::SaveCellDialog(QWidget* parent) :
 		QDialog(parent),
 		lineEdit_(NULL){
@@ -31,7 +31,7 @@ namespace Netlist {
 			okButton->setDefault(true);
 
 			QPushButton* cancelButton = new QPushButton();
-			cancelButton->setText("Ok");
+			cancelButton->setText("Cancel");
 
 			QHBoxLayout* hLayout = new QHBoxLayout();
 			hLayout->addStretch();

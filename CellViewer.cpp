@@ -107,6 +107,7 @@ namespace Netlist {
 	}
 
 	void CellViewer::setCell(Cell* cell){
+		setWindowTitle(cell->getName().c_str());
 		cellWidget_->setCell(cell);
 	}
 

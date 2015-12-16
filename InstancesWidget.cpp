@@ -47,6 +47,8 @@ namespace Netlist {
 		vLayout->addItem(hLayout);
 		vLayout->setSizeConstraint(QLayout::SetFixedSize);
 
+		setWindowTitle("Instances");
+
 		setLayout(vLayout);
 	}
 

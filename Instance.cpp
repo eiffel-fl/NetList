@@ -17,7 +17,7 @@ namespace Netlist {
 
 			//model est NULL
 			if(model != NULL){
-				vector<Term*> modelTerms = model->getTerms(); // <-- SEGFAULT
+				vector<Term*> modelTerms = model->getTerms();
 
 				//on copie les terms du modèle
 				for(vector<Term*>::iterator iMT = modelTerms.begin(); iMT != modelTerms.end(); ++iMT){
@@ -99,15 +99,19 @@ namespace Netlist {
 	void Instance::setPosition(const Point& point){
 		position_ = point;
 		vector<Term*>::iterator iT = terms_.begin();
-		for(; iT != terms_.end(); ++iT) //translation
+
+		for(; iT != terms_.end(); ++iT){ //translation
 			(*iT)->setPosition((*iT)->getPosition().translate(point));
+		}
 	}
 
 	void Instance::setPosition(int x, int y){
 		position_ = Point(x, y);
 		vector<Term*>::iterator iT = terms_.begin();
-		for(; iT != terms_.end(); ++iT) //translation
-			(*iT)->setPosition((*iT)->getPosition().getX() + x, (*iT)->getPosition().getY() + y);
+
+		for(; iT != terms_.end(); ++iT){ //translation
+			(*iT)->setPosition((*iT)->getPosition().translate(x, y));
+		}
 	}
 
 	Instance* Instance::fromXml(Cell* cell, xmlTextReaderPtr xmlPtr){

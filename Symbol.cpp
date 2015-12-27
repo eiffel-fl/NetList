@@ -23,17 +23,27 @@ namespace Netlist {
 
 	Point Symbol::getTermPosition(Term* term) const{
 		for(vector<Shape*>::const_iterator iS = shapes_.begin(); iS != shapes_.end(); ++iS){
-			if((dynamic_cast<TermShape*>(*iS))->getTerm() == term) //need a cast
-				return (dynamic_cast<TermShape*>(*iS))->getTerm()->getPosition();
+			TermShape* tShape = dynamic_cast<TermShape*>(*iS);
+			if(tShape){
+				if(tShape->getTerm()->getName() == term->getName()){ //need a cast
+					cerr << "getPosition" << endl;
+					return tShape->getTerm()->getPosition();
+				}
+			}
 		}
+		cerr << "Point vide" << endl;
 		return Point();
 	}
 
 	TermShape* Symbol::getTermShape(Term* term) const{
 		for(vector<Shape*>::const_iterator iS = shapes_.begin(); iS != shapes_.end(); ++iS){
-			if((dynamic_cast<TermShape*>(*iS))->getTerm() == term) //need a cast
-				return dynamic_cast<TermShape*>(*iS);
+			TermShape* tShape = dynamic_cast<TermShape*>(*iS);
+			if(tShape){
+				if(tShape->getTerm() == term) //need a cast
+					return dynamic_cast<TermShape*>(*iS);
+			}
 		}
+		cerr << "NULL" << endl;
 		return NULL;
 	}
 

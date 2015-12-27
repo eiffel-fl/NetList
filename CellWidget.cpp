@@ -16,8 +16,9 @@
 #include  "Node.h"
 #include  "Net.h"
 
-#define CELL_TERM_SIZE 10
-#define TERM_SIZE 5
+#define CELL_TERM_SIZE 15
+#define TERM_SIZE 10
+#define NODE_SIZE 5
 #define TERM_NAME_WIDTH 100
 #define TERM_NAME_HEIGHT 20
 
@@ -105,6 +106,8 @@ namespace Netlist {
 
 		vector<Net*> nets = cell_->getNets();
 
+		painter.setRenderHint(QPainter::Antialiasing, true);
+
 		for(vector<Net*>::iterator iN = nets.begin(); iN != nets.end(); ++iN){ //affichage des Lines et Nodes
 			vector<Line*> lines = (*iN)->getLines();
 			vector<Node*> nodes = (*iN)->getNodes();
@@ -119,7 +122,7 @@ namespace Netlist {
 				if(*iNo != NULL){
 					if((*iNo)->getDegree() > 2){ //connecté à plus de 2 Lines
 						painter.setBrush(QBrush(Qt::cyan));
-						painter.drawEllipse(pointToScreenPoint((*iNo)->getPosition()), TERM_SIZE, TERM_SIZE);
+						painter.drawEllipse(pointToScreenPoint((*iNo)->getPosition()), NODE_SIZE, NODE_SIZE);
 						painter.setBrush(Qt::NoBrush);
 					}
 				}
@@ -128,7 +131,7 @@ namespace Netlist {
 
 		const vector<Instance*> instances = cell_->getInstances();
 
-		for(size_t i = 0; i < instances.size(); i++){ //affichage des symbols
+		for(size_t i = 0; i < instances.size(); i++){ //affichage des instances
 			Point intPos = instances[i]->getPosition();
 
 			const Symbol* symbol = instances[i]->getMasterCell()->getSymbol();
@@ -138,7 +141,7 @@ namespace Netlist {
 
 			const vector<Shape*> shapes = symbol->getShapes();
 
-			for(size_t j = 0; j < shapes.size(); j++){
+			for(size_t j = 0; j < shapes.size(); j++){ //Shapes de l'instance courante
 				ArcShape* arcShape = dynamic_cast<ArcShape*>(shapes[j]);
 
 				if(arcShape){

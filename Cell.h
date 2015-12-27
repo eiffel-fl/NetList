@@ -63,7 +63,7 @@ namespace Netlist {
   };
 
 
-  inline Symbol*                       Cell::getSymbol    () const { return const_cast<Symbol*>(&symbol_); }  // TME7
+  inline Symbol*                       Cell::getSymbol    () const { return const_cast<Symbol*>(&symbol_); }
   inline const std::string&            Cell::getName      () const { return name_; }
   inline const std::vector<Instance*>& Cell::getInstances () const { return instances_; };
   inline const std::vector<Term*>&     Cell::getTerms     () const { return terms_; };

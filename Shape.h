@@ -75,6 +75,7 @@ namespace Netlist {
 		inline Term* getTerm(){ return term_; };
 		inline int getX1(){ return x1_; };
 		inline int getY1(){ return y1_; };
+		inline Point getPosition(){ return Point(x1_, y1_); }
 		inline NameAlign getAlign(){ return align_; };
 
 		virtual void toXml(std::ostream&) const;
@@ -82,6 +83,9 @@ namespace Netlist {
 
 		static NameAlign toNameAlign(std::string);
 		static std::string toString(NameAlign);
+
+		inline void setX1(int x){ x1_ = x; };
+		inline void setY1(int y){ y1_ = y; };
 	private:
 		Term* term_;
 		int x1_;

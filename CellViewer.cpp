@@ -1,8 +1,10 @@
 // -*- explicit-buffer-name: "CellWidget.cpp<M1-MOBJ/8-10>" -*-
+#define _XOPEN_SOURCE 777
 #include <QWidget>
 #include <QMenu>
 #include <QMenuBar>
 #include <QApplication>
+#include <QMessageBox>
 
 #include "Cell.h"
 #include "CellViewer.h"
@@ -12,6 +14,8 @@
 #include "InstancesWidget.h"
 #include "CellsLib.h"
 #include "CellsModel.h"
+
+#include <unistd.h>
 
 namespace Netlist {
 
@@ -122,7 +126,17 @@ namespace Netlist {
 		}
 
 		//il faut charger la cell
-		if(pthread_create(&tid, NULL, Cell::threadLoad, (void*) &cellName) == -1){
+		if(access(cellName.c_str(), F_OK) == -1){ //la cell n'existe pas
+			QMessageBox msgBox;
+			
+			msgBox.setIcon(QMessageBox::Critical);
+			msgBox.setText(QString::fromStdString("Pas de fichier pour la Cell : " + cellName));
+			msgBox.exec();
+			
+			return;
+		}
+
+		if(pthread_create(&tid, NULL, Cell::threadLoad, (void*) &cellName) == -1){ //elle existe alors elle est chargée
 			perror("pthread_create ");
 			exit(EXIT_FAILURE);
 		}

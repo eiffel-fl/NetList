@@ -126,7 +126,9 @@ namespace Netlist {
 		}
 
 		//il faut charger la cell
-		if(access(cellName.c_str(), F_OK) == -1){ //la cell n'existe pas
+		string cellFile = "../work/cells/" + cellName + ".xml";
+		
+		if(access(cellFile.c_str(), F_OK) == -1){ //la cell n'existe pas
 			QMessageBox msgBox;
 			
 			msgBox.setIcon(QMessageBox::Critical);

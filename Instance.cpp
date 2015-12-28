@@ -101,7 +101,7 @@ namespace Netlist {
 		vector<Term*>::iterator iT = terms_.begin();
 
 		for(; iT != terms_.end(); ++iT){ //translation
-			(*iT)->setPosition((*iT)->getPosition().translate(point));
+			(*iT)->setPosition(getMasterCell()->getSymbol()->getTermPosition(*iT).translate(point));
 		}
 	}
 
@@ -110,7 +110,7 @@ namespace Netlist {
 		vector<Term*>::iterator iT = terms_.begin();
 
 		for(; iT != terms_.end(); ++iT){ //translation
-			(*iT)->setPosition((*iT)->getPosition().translate(x, y));
+			(*iT)->setPosition(getMasterCell()->getSymbol()->getTermPosition(*iT).translate(x, y));
 		}
 	}
 

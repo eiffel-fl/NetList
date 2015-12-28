@@ -114,19 +114,17 @@ namespace Netlist {
 
 			painter.setPen(QPen(Qt::cyan, 1));
 
-			for(vector<Line*>::iterator iL = lines.begin() ; iL != lines.end() ; ++iL){
+			for(vector<Line*>::iterator iL = lines.begin() ; iL != lines.end() ; ++iL)
 				painter.drawLine(pointToScreenPoint((*iL)->getSourcePosition()), pointToScreenPoint((*iL)->getTargetPosition()));
-			}
 
+			painter.setBrush(QBrush(Qt::cyan));
 			for(vector<Node*>::iterator iNo = nodes.begin() ; iNo != nodes.end() ; ++iNo){
 				if(*iNo != NULL){
-					if((*iNo)->getDegree() > 2){ //connecté à plus de 2 Lines
-						painter.setBrush(QBrush(Qt::cyan));
+					if((*iNo)->getDegree() > 2) //connecté à plus de 2 Lines
 						painter.drawEllipse(pointToScreenPoint((*iNo)->getPosition()), NODE_SIZE, NODE_SIZE);
-						painter.setBrush(Qt::NoBrush);
-					}
 				}
 			}
+			painter.setBrush(Qt::NoBrush);
 		}
 
 		const vector<Instance*> instances = cell_->getInstances();

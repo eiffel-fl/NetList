@@ -25,13 +25,12 @@ namespace Netlist {
 		for(vector<Shape*>::const_iterator iS = shapes_.begin(); iS != shapes_.end(); ++iS){
 			TermShape* tShape = dynamic_cast<TermShape*>(*iS);
 			if(tShape){
-				if(tShape->getTerm()->getName() == term->getName()){ //need a cast
-					cerr << "getPosition" << endl;
-					return tShape->getTerm()->getPosition();
+				if(tShape->getTerm()->getName() == term->getName()){
+					cerr << tShape->getPosition() << endl; //La ligne magique !
+					return tShape->getPosition();
 				}
 			}
 		}
-		cerr << "Point vide" << endl;
 		return Point();
 	}
 
@@ -39,8 +38,8 @@ namespace Netlist {
 		for(vector<Shape*>::const_iterator iS = shapes_.begin(); iS != shapes_.end(); ++iS){
 			TermShape* tShape = dynamic_cast<TermShape*>(*iS);
 			if(tShape){
-				if(tShape->getTerm() == term) //need a cast
-					return dynamic_cast<TermShape*>(*iS);
+				if(tShape->getTerm()->getName() == term->getName())
+					return tShape;
 			}
 		}
 		cerr << "NULL" << endl;
